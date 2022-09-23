@@ -7,6 +7,8 @@ import cn.hutool.core.util.ZipUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 public class Command {
 
@@ -17,10 +19,22 @@ public class Command {
 
     private static final String JAVA_COMMACND = "java -jar";
 
-    private static final String BASE_DIR = "/usr/local/bin/commontools";
-    private static final String TOOLS_DIR = BASE_DIR + "/tools";
+    private static String JAR_PATH = Command.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    public static String CURRENT_PATH;
 
-    private static final String KEYSTORE_DIR = BASE_DIR + "/keystore/cyou.keystore";//默认的签名文件
+    //获取jar包所在目录
+    static {
+        try {
+            CURRENT_PATH = URLDecoder.decode((JAR_PATH.contains(".jar") ? JAR_PATH.substring(0,JAR_PATH.lastIndexOf("/")) : JAR_PATH), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static final String TOOLS_DIR = CURRENT_PATH + "/tools";
+
+    //签名文件相关
+    private static final String KEYSTORE_DIR = CURRENT_PATH + "/keystore/cyou.keystore";//默认的签名文件
     private static final String KEYSTORE_ALIAS = "cymgsdk";//默认的签名文件别名
     private static final String KEYSTORE_PASS = "cymgsdk";//默认的签名文件密码
 
@@ -32,6 +46,7 @@ public class Command {
     private static final String APK_SIGNER = TOOLS_DIR + "/buildtools/apksigner.jar";
     private static final String APK_ZIPALIGN = TOOLS_DIR + "/buildtools/zipalign";
     private static final String DEX_JAR = TOOLS_DIR + "/dex2jar_2.1/d2j-dex2jar.sh";
+
 
     /**
      * 查看apk信息

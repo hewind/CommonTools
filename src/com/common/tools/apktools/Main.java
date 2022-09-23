@@ -7,9 +7,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 	    // write your code here
+        System.out.println("当前目录："+System.getProperty("user.dir"));
+        System.out.println("jar运行目录："+Command.CURRENT_PATH);
         try {
             if (args == null || args.length == 0){
-                System.out.println(System.getProperty("user.dir"));
                 System.out.println("请输入：");
                 Scanner scanner = new Scanner(System.in);
                 if (scanner.hasNext()){ //判断是否有输入
