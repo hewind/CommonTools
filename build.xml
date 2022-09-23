@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="GBK"?>
+<!--project 用于定义一个ant工程，其中的三项name、default、basedir缺一不可。
+作用分别为：定义工程名、制定默认执行的任务、以及工程基础的路径型(它是计算其它路径的基础，一般情况下使用.表示当前目录)-->
+<project name="AntTask" default="makeJar" basedir=".">
+
+    <property name="src_dir" value="src" /><!--定义源文件路径，其中的value换成location也行，使用value的时候，${src}得到的就是src这个值，如果使用location，得到的是src这个目录的绝对路径-->
+    <property name="classes_dir" value="out/ant/class" /><!--编译后class文件存放的地方-->
+    <property name="jar_dir" value="jar/CommonTools.jar" /> <!--要生成的jar包-->
+    <property name="lib_dir" value="libs"/> <!--其他引用的jar包存放的位置-->
+
+    <!-- 定义主类（包全路径名） -->
+    <property name="main_class" value="com.common.tools.apktools.Main" />
+    <property name="author_name" value="heshuiguang" />
+    <property name="version_name" value="1.0.0" />
+
+
+
+    <!--设置classpath,配置引用的jar-->
+    <path id="classpath">
+        <fileset file="${lib_dir}/*.jar" />
+        <pathelement path="${classes_dir}" />
+    </path>
+
+    <!--  ====================================================初始化==============================================================  -->
+    <!--创建任务init，负责初始化一些条件-->
+    <target name="init" description="初始化任务">
+        <echo>初始化输出目录</echo>
+        <delete dir="${classes_dir}" /><!--删掉原有文件夹-->
+        <delete file="${jar_dir}" /><!--删除旧的jar包-->
+        <mkdir dir="${classes_dir}" /><!--重新生成文件夹-->
+    </target>
+
+
+    <!--  ====================================================编译==============================================================  -->
+    <!-- 编译Java源文件 -->
+    <target name="compile" depends="init" description="comile target">
+        <!--javac，编译，对应java中的javac命令-->
+        <!--srcdir定义源文件路径-->
+        <!--destdir定义编译后文件路径-->
+        <!--includeantruntime作用是指定编译任务是否包含ant的classpath,可有可无，不影响编译-->
+        <!--debug 设置为true 会把源文件的属性信息如源文件名称写入class文件  ; 如果为false以后log4j日志输出引用类名会找不到变成?号-->
+        <javac srcdir="${src_dir}" destdir="${classes_dir}" source="1.8" target="1.8" encoding="utf-8" failonerror="true" includeAntRuntime="false" debug="true">
+            <classpath refid="classpath" />
+            <compilerarg line="-Xlint:unchecked" />
+            <compilerarg line="-Xlint:deprecation" />
+        </javac>
+
+        <copy todir="${classes_dir}"><!--把src源文件目录下的配置文件 , 复制到编译后的目录中-->
+            <fileset dir="${src_dir}">
+                <include name="**/*.xml"/>
+                <include name="**/*.properties"/>
+            </fileset>
+        </copy>
+        <echo message="源文件编译完成" />
+    </target>
+
+    <!--  ====================================================打包成jar==============================================================  -->
+    <!--打包开始，名字为jar，依赖任务为compile-->
+    <target name="makeJar" depends="compile" description="make jar file">
+        <!-- 指定时间戳，可以调用TODAY -->
+        <tstamp>
+            <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+        </tstamp>
+
+        <jar jarfile="${jar_dir}" basedir="${classes_dir}"><!--jar操作，jarfile指定jar包存放路径，basedir为编译后的class的目录-->
+            <!-- 过滤掉测试类 -->
+            <exclude name="**/*Test.*" />
+            <exclude name="**/Test*.*" />
+            <!-- 生成清单文件 -->
+            <manifest>
+                <!-- 指定main-class -->
+                <attribute name="Main-Class" value="${main_class}" />
+                <!-- 指定作者 -->
+                <attribute name="Built-By" value="${author_name}" />
+                <!-- 指定版本号 -->
+                <attribute name="Implementation-Version" value="${version_name}" />
+                <!-- 编译时间 -->
+                <attribute name="Built-Date" value="${TODAY}" />
+            </manifest>
+            <!-- 这里引入第三方jar包库 -->
+            <zipfileset src="${lib_dir}/hutool-all-5.5.5.jar" />
+        </jar>
+        <echo>打包jar成功！</echo>
+    </target>
+</project>

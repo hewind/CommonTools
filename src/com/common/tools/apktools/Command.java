@@ -309,9 +309,9 @@ public class Command {
                 .append(LINE)
                 .append("jar xxx.dex -o xxx.jar").append(SPACE).append(SPACE).append("【dex文件转jar，不加-o输出与dex同目录】")
                 .append(LINE)
-                .append("camille xxx.yyy.zzz -o 检测结果.xls").append(SPACE).append(SPACE).append("【检测隐私权限，不加-o，默认输出excel文件到桌面】")
+                .append("camille com.demo.test -o 检测结果.xls").append(SPACE).append(SPACE).append("【检测隐私权限，不加-o，默认输出excel文件到桌面】")
                 .append(LINE)
-                .append("zip xxx/yyy/zzz -o file.zip").append(SPACE).append(SPACE).append("【zip压缩文件，不加-o，默认输出到同级目录】");
+                .append("zip test -o file.zip").append(SPACE).append(SPACE).append("【zip压缩文件，不加-o，默认输出到同级目录】");
         System.out.println(builder.toString());
     }
 
