@@ -161,7 +161,9 @@ def frida_hook(app_name, use_module, wait_time=0, is_show=True, execl_file=None,
         content_style.alignment = alignment
         content_style.alignment.wrap = 1
 
-    with open("./tools/camille/script.js", encoding="utf-8") as f:
+    #获得当前工作目录的父目录
+    print("==="+sys.path[0])
+    with open(sys.path[0] + "/script.js", encoding="utf-8") as f:
         script_read = f.read()
 
     if wait_time:
@@ -204,18 +206,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="App privacy compliance testing.")
     parser.add_argument("package", help="APP_NAME or process ID ex: com.test.demo01 、12345")
     parser.add_argument("--time", "-t", default=0, type=int, help="Delayed hook, the number is in seconds ex: 5")
-    parser.add_argument("--noshow", "-ns", required=False, action="store_const", default=True, const=False,
-                        help="Showing the alert message")
+    parser.add_argument("--noshow", "-ns", required=False, action="store_const", default=True, const=False,help="Showing the alert message")
     parser.add_argument("--file", "-f", metavar="<path>", required=False, help="Name of Excel file to write")
-    parser.add_argument("--isattach", "-ia", required=False, action="store_const", default=False, const=True,
-                        help="use attach hook")
+    parser.add_argument("--isattach", "-ia", required=False, action="store_const", default=False, const=True,help="use attach hook")
+    parser.add_argument("--jsPath", "-js", metavar="<path>", required=False, help="no script.js file exist")
 
     group = parser.add_mutually_exclusive_group()
 
-    group.add_argument("--use", "-u", required=False,
-                       help="Detect the specified module,Multiple modules are separated by ',' ex:phone,permission")
-    group.add_argument("--nouse", "-nu", required=False,
-                       help="Skip specified module，Multiple modules are separated by ',' ex:phone,permission")
+    group.add_argument("--use", "-u", required=False,help="Detect the specified module,Multiple modules are separated by ',' ex:phone,permission")
+    group.add_argument("--nouse", "-nu", required=False,help="Skip specified module，Multiple modules are separated by ',' ex:phone,permission")
 
     args = parser.parse_args()
     # 全局变量

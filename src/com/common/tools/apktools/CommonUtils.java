@@ -1,17 +1,10 @@
 package com.common.tools.apktools;
 
 
+
 import cn.hutool.core.io.FileUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 public class CommonUtils {
 
@@ -42,53 +35,57 @@ public class CommonUtils {
                 return tasks[i+1];
             }
         }
-        int index = apkPath.lastIndexOf(".apk");
-        return apkPath.substring(0,index) + "_" + defalutApkName;
+        if (apkPath.contains(".apk")){
+            int index = apkPath.lastIndexOf(".apk");
+            return apkPath.substring(0,index) + "_" + defalutApkName;
+        }
+        return apkPath + "_" + defalutApkName;
     }
 
     /**
      * 获取签名文件路径
      * @param tasks
-     * @param defaultKey
+     * @param keyStoreDir
      * @return
      */
-    public static String getKeystore(String[] tasks, String defaultKey) {
+    public static String getKeystore(String[] tasks, String keyStoreDir) {
         for (int i=0; i<tasks.length; i++){
             if (tasks[i].equals("-k")){
                 return tasks[i+1];
             }
         }
-        return defaultKey;
+        //读取默认的签名文件
+        return getKeystorePath(keyStoreDir);
     }
 
     /**
      * 获取签名别名
      * @param tasks
-     * @param keystoreAlias
+     * @param keyStoreTxtDir
      * @return
      */
-    public static String getAliasName(String[] tasks, String keystoreAlias) {
+    public static String getAliasName(String[] tasks, String keyStoreTxtDir) {
         for (int i=0; i<tasks.length; i++){
             if (tasks[i].equals("-a")){
                 return tasks[i+1];
             }
         }
-        return keystoreAlias;
+        return getKeystoreAliasPass(keyStoreTxtDir, "alias");
     }
 
     /**
      * 获取签名密码
      * @param tasks
-     * @param keystorePass
+     * @param keyStoreTxtDir
      * @return
      */
-    public static String getKeyStorePass(String[] tasks, String keystorePass) {
+    public static String getPassWord(String[] tasks, String keyStoreTxtDir) {
         for (int i=0; i<tasks.length; i++){
             if (tasks[i].equals("-p")){
                 return tasks[i+1];
             }
         }
-        return keystorePass;
+        return getKeystoreAliasPass(keyStoreTxtDir, "password");
     }
 
     public static String getOutputFilePath(String[] tasks, String defaultFileName) {
@@ -108,6 +105,59 @@ public class CommonUtils {
             }
         }
         return defaultFileName;
+    }
+
+    /**
+     * 读取默认目录下的签名文件
+     * @param path
+     * @return
+     */
+    private static String getKeystorePath(String path){
+        File keyDir = new File(path);
+        if (FileUtil.isDirectory(keyDir)){
+            File[] files = keyDir.listFiles();
+            for (File f : files) {
+                if (f.getName().endsWith(".keystore") || f.getName().endsWith(".jks")){
+                    System.out.println("读取keystore文件："+f.getAbsolutePath());
+                    return f.getAbsolutePath();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 读取默认目录下txt中的签名alias
+     *
+     * @param keyStoreTxtDir
+     * @param type
+     * @return
+     */
+    private static String getKeystoreAliasPass(String keyStoreTxtDir, String type){
+        String txtFilePath = null;
+        File keyDir = new File(keyStoreTxtDir);
+        if (FileUtil.isDirectory(keyDir)){
+            File[] files = keyDir.listFiles();
+            assert files != null;
+            for (File f : files) {
+                if (f.getName().endsWith(".txt")){
+                    System.out.println("读取签名"+type+"："+f.getAbsolutePath());
+                    txtFilePath = f.getAbsolutePath();
+                    break;
+                }
+            }
+        }
+        String txt = FileUtil.readUtf8String(txtFilePath);
+        //分割每行文本
+        String[] content = txt.split("\n");
+        for (String line : content) {
+            if (line.contains(type)){
+                String[] key = line.split("=");
+                System.out.println("签名" + type + " = "+ key[1]);
+                return key[1];
+            }
+        }
+        return "";
     }
 
 

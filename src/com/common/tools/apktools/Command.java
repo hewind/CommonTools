@@ -25,7 +25,8 @@ public class Command {
     //获取jar包所在目录
     static {
         try {
-            CURRENT_PATH = URLDecoder.decode((JAR_PATH.contains(".jar") ? JAR_PATH.substring(0,JAR_PATH.lastIndexOf("/")) : JAR_PATH), "utf-8");
+            String path = JAR_PATH.contains(".jar") ? JAR_PATH.substring(0,JAR_PATH.lastIndexOf("/")) : JAR_PATH;
+            CURRENT_PATH = URLDecoder.decode(path, "utf-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -34,9 +35,7 @@ public class Command {
     private static final String TOOLS_DIR = CURRENT_PATH + "/tools";
 
     //签名文件相关
-    private static final String KEYSTORE_DIR = CURRENT_PATH + "/keystore/cyou.keystore";//默认的签名文件
-    private static final String KEYSTORE_ALIAS = "cymgsdk";//默认的签名文件别名
-    private static final String KEYSTORE_PASS = "cymgsdk";//默认的签名文件密码
+    private static final String KEYSTORE_DIR = CURRENT_PATH + "/keystore";//默认的签名文件所在目录
 
     private static final String APKTOOL = TOOLS_DIR + "/apktool/apktool_2.6.1.jar";
     private static final String BACK_SMALI = TOOLS_DIR + "/dex2smali_2.5.2/baksmali.jar";
@@ -55,7 +54,7 @@ public class Command {
      */
     public static void apkInfo(String apkPath){
         String command = AAPT + " dump badging " + apkPath;
-        startExec(command);
+        startExec(command, "查看apk信息");
         apkSignInfo(apkPath);
     }
 
@@ -66,7 +65,7 @@ public class Command {
      */
     public static void apkToSmali(String apkPath){
         String command = JAVA_COMMACND + SPACE + APKTOOL + " d " + apkPath + " -f -o " + CommonUtils.getApkOutputFilePath(apkPath);
-        startExec(command);
+        startExec(command, "反编译apk，smali 文件格式");
     }
 
     /**
@@ -76,7 +75,7 @@ public class Command {
      */
     public static void apkToDex(String apkPath){
         String command = JAVA_COMMACND + SPACE + APKTOOL + " d -s " + apkPath + " -f -o " + CommonUtils.getApkOutputFilePath(apkPath);
-        startExec(command);
+        startExec(command, "反编译apk，dex 文件格式");
     }
 
     /**
@@ -86,14 +85,19 @@ public class Command {
      */
     public static void buildApk(String apkPath){
         String command = JAVA_COMMACND + SPACE + APKTOOL + " b " + apkPath + " -f -o " + CommonUtils.getBuildApkPath(apkPath);
-        startExec(command);
+        startExec(command, "回编apk");
     }
 
     /**
      * apk签名
-     * @param tasks
-     * command: sign intput.apk -o output.apk -k 签名文件 -a 别名 -p 密码（不带-k，表示使用默认的签名文件）
+     * command:
+     * 用法一：sign intput.apk
+     * 用法二：sign intput.apk -o output.apk
+     * 用法三：sign intput.apk -o output.apk -k 签名文件 -a 别名 -p 密码（不带-o，默认输出到与未签名apk同目录。不带-k、-a、-p，表示使用默认的签名文件）
+     *
+     * 签名命令：
      * apksigner sign --ks 签名文件 --ks-key-alias 别名 --ks-pass pass: 密码 --out 签名后的apk 待签名的apk
+     * @param tasks
      */
     public static void signApk(String[] tasks){
         String inputApkPath = tasks[1];
@@ -101,21 +105,43 @@ public class Command {
 
         //先对其apk
         String zipalignCommand = APK_ZIPALIGN + SPACE + "-p -f -v 4" + SPACE + inputApkPath + SPACE + zipInputApkPath;
-        startExec(zipalignCommand);
+        startExec(zipalignCommand, "对其优化apk");
 
         //再对apk进行签名
         String command = JAVA_COMMACND + SPACE + APK_SIGNER
-                + SPACE + "sign --ks" + SPACE + CommonUtils.getKeystore(tasks,KEYSTORE_DIR)//签名文件
+                + SPACE + "sign --ks " + CommonUtils.getKeystore(tasks,KEYSTORE_DIR)//签名文件
                 + SPACE + "-v"//输出日志
-                + SPACE + "--ks-key-alias" + SPACE + CommonUtils.getAliasName(tasks,KEYSTORE_ALIAS)//签名别名
-                + SPACE + "--ks-pass pass:" + CommonUtils.getKeyStorePass(tasks,KEYSTORE_PASS)//签名密码
+                + SPACE + "--ks-key-alias " + CommonUtils.getAliasName(tasks,KEYSTORE_DIR)//签名别名
+                + SPACE + "--ks-pass pass:" + CommonUtils.getPassWord(tasks,KEYSTORE_DIR)//签名密码
                 + SPACE + "--v1-signing-enabled true --v2-signing-enabled true"//默认使用v1v2签名
-                + SPACE + "--out" + SPACE + CommonUtils.getZipApkAndSignApkPath(tasks,inputApkPath,"sign.apk")//输出签名后的apk
+                + SPACE + "--out " + CommonUtils.getZipApkAndSignApkPath(tasks,inputApkPath,"sign.apk")//输出签名后的apk
                 + SPACE + zipInputApkPath;//对其后的apk
-        startExec(command);
+        startExec(command, "对apk进行签名");
 
         //删除zipalign包
+        System.out.println("删除对其后的apk包");
         FileUtil.del(zipInputApkPath);
+    }
+
+    /**
+     * 回编apk，并且给apk签名
+     * command:
+     * 用法一：buildsignapk xxx -o
+     * 用法二：buildsignapk xxx -o output.apk
+     * 用法三：buildsignapk xxx -o output.apk -k 签名文件 -a 别名 -p 密码（不带-o，默认输出到与未签名apk同目录。不带-k、-a、-p，表示使用默认的签名文件）
+     * @param tasks
+     */
+    public static void buildSignApk(String[] tasks){
+        String apkPath = tasks[1];
+        String newApkPath = CommonUtils.getBuildApkPath(apkPath);
+        tasks[1] = newApkPath;
+        //回编apk
+        buildApk(apkPath);
+        //签名apk
+        signApk(tasks);
+        //删除回编apk
+        System.out.println("删除回编后的apk包");
+        FileUtil.del(newApkPath);
     }
 
     /**
@@ -124,7 +150,7 @@ public class Command {
      */
     public static void verifySign(String apkPath){
         String command = "jarsigner  -verify  -verbose  -certs " + apkPath;
-        startExec(command);
+        startExec(command, "验证签名是否成功");
     }
 
     /**
@@ -134,7 +160,7 @@ public class Command {
      */
     public static void verifyV1V2(String apkPath){
         String command = JAVA_COMMACND + SPACE + APK_SIGNER + " verify -v --print-certs " + apkPath;
-        startExec(command);
+        startExec(command, "验证是否使用了V1和V2签名");
     }
 
     /**
@@ -144,53 +170,61 @@ public class Command {
      */
     public static void keyStoreInfo(String keystorePath){
         String command = "keytool -v -list -keystore " + keystorePath;
-        startExec(command);
+        startExec(command, "查看keystore的sha1、md5值");
     }
 
     /**
-     * apk的sha1、md5值
+     * 查看apk的sha1、md5值
      * command: signinfo xxx.apk
      * @param apkPath
      */
     public static void apkSignInfo(String apkPath){
         String command = "keytool -printcert -jarfile " + apkPath;
-        startExec(command);
+        startExec(command, "查看apk的sha1、md5值");
     }
 
     /**
      * dex文件转smali
-     * command：smali xxx.dex -o smali文件路径
+     * command：
+     * 用法一：smali xxx.dex
+     * 用法二：smali xxx.dex -o smali文件路径
      * @param tasks
      */
     public static void dexToSmali(String[] tasks){
         String command = JAVA_COMMACND + SPACE + BACK_SMALI + " disassemble " + tasks[1] + " -o " + CommonUtils.getOutputFilePath(tasks,"smali");
-        startExec(command);
+        startExec(command, "dex文件转smali");
     }
 
     /**
-     * smali转dex
-     * command: dex xxx -o dex文件路径
+     * smali文件转dex
+     * command:
+     * 用法一：dex xxx
+     * 用法二：dex xxx -o dex文件路径
      * @param tasks
      */
     public static void smaliToDex(String[] tasks){
         String command = JAVA_COMMACND + SPACE + SMALI + " assemble " + tasks[1] + " -o " + CommonUtils.getOutputFilePath(tasks,"classes.dex");
-        startExec(command);
+        startExec(command, "smali文件转dex");
     }
 
     /**
-     * dex转jar
-     * command: jar xxx.dex -o xxx.jar（不带-o，默认输出到与dex同目录）
+     * dex文件转jar
+     * command:
+     * 用法一：jar xxx.dex
+     * 用法二：jar xxx.dex -o xxx.jar（不带-o，默认输出到与dex同目录）
      * @param tasks
      */
     public static void dexToJar(String[] tasks){
         String dex = tasks[1];
         String command = DEX_JAR + SPACE + dex + " -o " + CommonUtils.getOutputFilePath(tasks,"classes.jar");
-        startExec(command);
+        startExec(command, "dex文件转jar");
     }
 
     /**
      * 检测隐私权限
-     * command: camille com.test.demo -o 检测结果.xls（不带-o，默认输出excel文件到桌面）
+     * command:
+     * 用法一：camille com.test.demo
+     * 用法二：camille com.test.demo -o 检测结果.xls（不带-o，默认输出excel文件到桌面）
      * @param tasks
      */
     public static void camille(String[] tasks){
@@ -201,12 +235,14 @@ public class Command {
                 + "-f"
                 + SPACE
                 + CommonUtils.getOutputFilePath(tasks,Contant.DesktopPath+"检测结果.xls");
-        startExec(command);
+        startExec(command, "检测隐私权限");
     }
 
     /**
      * 压缩为jar文件
-     * command: zip xxx/yyy/zzz -o xxx/yyy/zzz/file.zip（不加-o，默认输出到同级目录）
+     * command:
+     * 用法一：zip xxx/yyy/zzz
+     * 用法二：zip xxx/yyy/zzz -o xxx/yyy/zzz/file.zip（不加-o，默认输出到同级目录）
      * @param tasks
      */
     public static void zip(String[] tasks){
@@ -216,7 +252,7 @@ public class Command {
             ZipUtil.zip(dir,zipFilePath);
         }else {
             String command = "zip -r " + zipFilePath + SPACE + dir + SPACE + "-x" + SPACE + "\"*.DS_Store\"";
-            startExec(command);
+            startExec(command, "压缩为jar文件");
         }
     }
 
@@ -226,8 +262,9 @@ public class Command {
      * 执行终端命令
      * @param executor
      */
-    public static void startExec(String executor){
+    public static void startExec(String executor, String taskDescrip){
         try {
+            System.out.println("============================================================="+taskDescrip+"====================================================================================");
             final StringBuilder command = new StringBuilder(CommonUtils.isWindows() ? "cmd /c " : "");
             command.append(executor);
             System.out.println("command: "+command.toString()+"\n");
@@ -247,8 +284,7 @@ public class Command {
                 }
             }).start();
             readLog(command.toString(),resStr, bfRead);
-            String log = "=================================================================================================================" +"\n" +resStr.toString();
-            System.out.println(log);
+            System.out.println(resStr.toString());
         }catch (Exception e){
             e.printStackTrace();
             System.out.println(e);

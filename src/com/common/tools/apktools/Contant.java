@@ -13,7 +13,8 @@ public class Contant {
     public static final String TASK_APK_SMALI = "apksmali";//反编译apk，以smali格式查看
     public static final String TASK_APK_DEX = "apkdex";//反编译apk，以dex格式查看
     public static final String TASK_BUILD_APK = "build";//回编apk
-    public static final String TASK_SIGN_APK = "sign";//回编apk，带签名
+    public static final String TASK_SIGN_APK = "sign";//签名apk
+    public static final String TASK_BUILDSIGN_APK = "buildsignapk";//回编apk，带签名
     public static final String TASK_SMALI = "smali";//dex转smali
     public static final String TASK_DEX = "dex";//smali转dex
     public static final String TASK_KEY_INFO = "keyinfo";//keystore 签名信息，md5、sha1

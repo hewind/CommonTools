@@ -7,8 +7,10 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 	    // write your code here
-        System.out.println("当前目录："+System.getProperty("user.dir"));
-        System.out.println("jar运行目录："+Command.CURRENT_PATH);
+        System.out.println("\n");
+        System.out.println("当前所在目录："+System.getProperty("user.dir"));
+        System.out.println("jar安装目录："+Command.CURRENT_PATH);
+        System.out.println("\n");
         try {
             if (args == null || args.length == 0){
                 System.out.println("请输入：");
@@ -45,8 +47,10 @@ public class Main {
             Command.apkToDex(tasks[1]);
         }else if (taskType.equals(Contant.TASK_BUILD_APK)){//回编apk
             Command.buildApk(tasks[1]);
-        }else if (taskType.equals(Contant.TASK_SIGN_APK)){//回编apk，带签名
+        }else if (taskType.equals(Contant.TASK_SIGN_APK)){//apk签名
             Command.signApk(tasks);
+        }else if (taskType.equals(Contant.TASK_BUILDSIGN_APK)){//回编apk，带签名
+            Command.buildSignApk(tasks);
         }else if (taskType.equals(Contant.TASK_SMALI)){//dex转smali
             Command.dexToSmali(tasks);
         }else if (taskType.equals(Contant.TASK_DEX)){//smali转dex
