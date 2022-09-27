@@ -126,9 +126,9 @@ public class Command {
     /**
      * 回编apk，并且给apk签名
      * command:
-     * 用法一：buildsignapk xxx -o
-     * 用法二：buildsignapk xxx -o output.apk
-     * 用法三：buildsignapk xxx -o output.apk -k 签名文件 -a 别名 -p 密码（不带-o，默认输出到与未签名apk同目录。不带-k、-a、-p，表示使用默认的签名文件）
+     * 用法一：buildsign xxx -o
+     * 用法二：buildsign xxx -o output.apk
+     * 用法三：buildsign xxx -o output.apk -k 签名文件 -a 别名 -p 密码（不带-o，默认输出到与未签名apk同目录。不带-k、-a、-p，表示使用默认的签名文件）
      * @param tasks
      */
     public static void buildSignApk(String[] tasks){
@@ -241,8 +241,8 @@ public class Command {
     /**
      * 压缩为jar文件
      * command:
-     * 用法一：zip xxx/yyy/zzz
-     * 用法二：zip xxx/yyy/zzz -o xxx/yyy/zzz/file.zip（不加-o，默认输出到同级目录）
+     * 用法一：zip xxx
+     * 用法二：zip xxx -o file.zip（不加-o，默认输出到同级目录）
      * @param tasks
      */
     public static void zip(String[] tasks){
@@ -340,7 +340,7 @@ public class Command {
      */
     public static void getHelpInfo(){
         StringBuilder builder = new StringBuilder();
-        builder.append("apk常用命令工具当前版本：").append(Contant.VERSION)
+        builder.append("apk常用命令工具，当前版本：").append(Contant.VERSION)
                 .append(LINE)
                 .append("帮助信息：")
                 .append(LINE)
@@ -351,6 +351,10 @@ public class Command {
                 .append("apkdex xxx.apk").append(SPACE).append(SPACE).append("【反编译apk，dex文件格式】")
                 .append(LINE)
                 .append("build xxx").append(SPACE).append(SPACE).append("【回编apk】")
+                .append(LINE)
+                .append("sign xxx.apk -o output.apk -k 签名文件 -a 别名 -p 密码").append(SPACE).append(SPACE).append("【给apk签名，不带-o，默认输出到与未签名apk同目录。不带-k、-a、-p，表示使用默认的签名文件】")
+                .append(LINE)
+                .append("buildsign xxx -o output.apk -k 签名文件 -a 别名 -p 密码").append(SPACE).append(SPACE).append("【回编apk同时给apk签名，不带-o，默认输出到与未签名apk同目录。不带-k、-a、-p，表示使用默认的签名文件】")
                 .append(LINE)
                 .append("vv xxx.apk").append(SPACE).append(SPACE).append("【验证是否使用了V1和V2签名】")
                 .append(LINE)

@@ -7,10 +7,6 @@ public class Main {
 
     public static void main(String[] args) throws Exception{
 	    // write your code here
-        System.out.println("\n");
-        System.out.println("当前所在目录："+System.getProperty("user.dir"));
-        System.out.println("jar安装目录："+Command.CURRENT_PATH);
-        System.out.println("\n");
         try {
             if (args == null || args.length == 0){
                 System.out.println("请输入：");
@@ -38,7 +34,10 @@ public class Main {
         if (taskType.equals(Contant.TASK_HELP)){//查看帮助信息
             Command.getHelpInfo();
         }else if (taskType.equals(Contant.TASK_VERSION)){//查看版本信息
-            System.out.println(Contant.VERSION);
+            System.out.println("当前版本："+Contant.VERSION);
+        }else if (taskType.equals(Contant.TASK_LOCATION)){//查看安装目录
+            System.out.println("当前所在目录："+System.getProperty("user.dir"));
+            System.out.println("jar安装目录："+Command.CURRENT_PATH);
         }else if (taskType.equals(Contant.TASK_APK_INFO)){//查看apk信息
             Command.apkInfo(tasks[1]);
         }else if (taskType.equals(Contant.TASK_APK_SMALI)){//反编译apk，smali 文件格式
