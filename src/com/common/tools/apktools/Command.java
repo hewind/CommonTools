@@ -362,6 +362,8 @@ public class Command {
                 .append(LINE)
                 .append("smali xxx.dex -o smali文件路径").append(SPACE).append(SPACE).append("【dex文件转smali，不加-o输出与dex同目录】")
                 .append(LINE)
+                .append("dex xxx -o dex文件路径").append(SPACE).append(SPACE).append("【smali文件转dex，不加-o输出与dex同目录】")
+                .append(LINE)
                 .append("jar xxx.dex -o xxx.jar").append(SPACE).append(SPACE).append("【dex文件转jar，不加-o输出与dex同目录】")
                 .append(LINE)
                 .append("camille com.demo.test -o 检测结果.xls").append(SPACE).append(SPACE).append("【检测隐私权限，不加-o，默认输出excel文件到桌面】")

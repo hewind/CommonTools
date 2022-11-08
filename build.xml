@@ -5,13 +5,13 @@
 
     <property name="src_dir" value="src" /><!--定义源文件路径，其中的value换成location也行，使用value的时候，${src}得到的就是src这个值，如果使用location，得到的是src这个目录的绝对路径-->
     <property name="classes_dir" value="out/ant/class" /><!--编译后class文件存放的地方-->
-    <property name="jar_dir" value="jar/CommonTools.jar" /> <!--要生成的jar包-->
     <property name="lib_dir" value="libs"/> <!--其他引用的jar包存放的位置-->
 
     <!-- 定义主类（包全路径名） -->
     <property name="main_class" value="com.common.tools.apktools.Main" />
     <property name="author_name" value="heshuiguang" />
-    <property name="version_name" value="1.0.0" />
+    <property name="version_name" value="1.0.1" /> <!-- jar版本号 -->
+    <property name="jar_dir" value="jar/CommonTools-${version_name}.jar" /> <!--要生成的jar包-->
 
 
 
