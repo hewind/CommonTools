@@ -121,6 +121,9 @@ public class Command {
         //删除zipalign包
         System.out.println("删除对其后的apk包");
         FileUtil.del(zipInputApkPath);
+        //删除待签名apk包
+        System.out.println("删除对其后的apk包");
+        FileUtil.del(inputApkPath);
     }
 
     /**
