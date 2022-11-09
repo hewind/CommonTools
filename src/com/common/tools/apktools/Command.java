@@ -122,7 +122,7 @@ public class Command {
         System.out.println("删除对其后的apk包");
         FileUtil.del(zipInputApkPath);
         //删除待签名apk包
-        System.out.println("删除对其后的apk包");
+        System.out.println("删除待签名的apk包");
         FileUtil.del(inputApkPath);
     }
 
@@ -142,9 +142,6 @@ public class Command {
         buildApk(apkPath);
         //签名apk
         signApk(tasks);
-        //删除回编apk
-        System.out.println("删除回编后的apk包");
-        FileUtil.del(newApkPath);
     }
 
     /**
